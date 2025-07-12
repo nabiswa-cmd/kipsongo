@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Profit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body{font-family:Arial,Helvetica,sans-serif;padding:20px}
+        table{border-collapse:collapse;width:100%;max-width:600px;margin:auto}
+        th,td{border:1px solid #ddd;padding:8px;text-align:right}
+        th{background:#333;color:#fff;text-align:center}
+        tr:nth-child(even){background:#f5f5f5}
+        .pos{color:#198754;font-weight:bold}
+        .neg{color:#dc3545;font-weight:bold}
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center">Daily Profit Summary</h2>
+
+<table>
+  <tr>
+    <th>Date</th><th>Revenue (KSh)</th><th>Cost (KSh)</th><th>Profit (KSh)</th>
+  </tr>
+  {% for d in daily %}
+    <tr>
+      <td style="text-align:left">{{ d.day.strftime('%d %b %Y') }}</td>
+      <td>{{ "%.2f"|format(d.revenue) }}</td>
+      <td>{{ "%.2f"|format(d.cost) }}</td>
+      <td class="{{ 'pos' if d.profit >= 0 else 'neg' }}">
+          {{ "%.2f"|format(d.profit) }}
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+<a href="{{ url_for('finance_page') }}" class="back">← Back</a>
+
+
+</body>
+</html>

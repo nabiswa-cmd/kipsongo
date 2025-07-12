@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Sale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h2 {
+            color: #d41818;
+            text-align: center;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #d41818;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        a {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #d41818;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit Sale</h2>
+    <form method="POST">
+    <label for="gas_id">Gas Type</label>
+    <select name="gas_id" disabled>
+        {% for gas in gases %}
+        <option value="{{ gas[0] }}" {% if gas[0] == sale.gas_id %}selected{% endif %}>
+            {{ gas[1] }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <label for="amount_paid_cash">Amount Paid (Cash)</label>
+    <input type="number" name="amount_paid_cash" step="0.01" value="{{ sale.amount_paid_cash }}" required>
+
+    <label for="amount_paid_till">Amount Paid (Till)</label>
+    <input type="number" name="amount_paid_till" step="0.01" value="{{ sale.amount_paid_till }}" required>
+
+    <button type="submit">Update Amounts</button>
+</form>
+
+    <a href="{{ url_for('sales') }}">Cancel & Return</a>
+</body>
+</html>

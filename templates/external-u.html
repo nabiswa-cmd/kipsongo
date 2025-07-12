@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Add Gas to Ukweli Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4285f4;
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            padding: 14px;
+            width: 100%;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .nav-buttons button {
+            flex: 1;
+            padding: 14px 0;
+            background-color: #6c757d;
+        }
+        .nav-buttons button:hover {
+            background-color: #5a6268;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 300px;
+        }
+        th, td {
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 15px;
+        }
+        th {
+            background-color: #444;
+            color: white;
+        }
+
+        a.back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #4285f4;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (min-width: 600px) {
+            /* Optional: keep stacked on mobile, but wider on tablets */
+            .container {
+                max-width: 700px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Add External Gas to Ukweli Store</h2>
+
+        <form method="POST" action="{{ action_url }}">
+            <label for="gas_id">Select Gas:</label>
+            <select name="gas_id" id="gas_id" required>
+                {% for gas in gases %}
+                    <option value="{{ gas[0] }}" {% if gas[0] == current_gas_id %}selected{% endif %}>
+                        {{ gas[1] }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <div class="nav-buttons">
+                <button type="submit" name="action" value="prev">← Previous</button>
+                <button type="submit" name="action" value="next">Next →</button>
+            </div>
+
+            <label for="quantity">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" min="1" placeholder="Enter quantity" required />
+
+            <button type="submit" name="action" value="add">Add to Kipsongo</button>
+            <button type="submit" name="action" value="add_one" style="background-color: #2a9d8f; margin-top: 10px;">
+                Add +1 Gas
+            </button>
+        </form>
+
+        <div class="table-container">
+            <h3>Current External Gas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gas Name</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in source_gas %}
+                    <tr>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[2] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="2" style="text-align:center;">No gas data available.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+    </div>
+
+</body>
+</html>

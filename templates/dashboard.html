@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard – Ukweli Gas System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- ✅ Correct and working Font Awesome 6.5.1 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-Yg5KnQ60P4uX2M01FbZwNYAwcV9X0V4Fw8ZlXr1b9i9yIuRkjv/GL4tn3V5R+rOaGc2ybWQfsxrq8+ocFlm5GQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f1f4f9;
+      background-image:url("{{ url_for('static', filename='/uploads/WhatsApp Image 2025-03-03 at 21.15.24_eaed2eba.jpg') }}");
+      padding: 20px;
+      text-align: center;
+    }
+
+    .banner {
+      width: 100%;
+      max-width: 960px;
+      height: 180px;
+      background: url('https://images.unsplash.com/photo-1581091870622-3ed01f67a875?auto=format&fit=crop&w=1350&q=80') center/cover;
+      border-radius: 14px;
+      margin: 0 auto 35px;
+    }
+
+    h2 {
+      font-weight: 600;
+      color: #333;
+      margin: 10px 0 30px;
+    }
+
+    .user-icon {
+      font-size: 60px;
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .card-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,.08);
+      color: #333;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s all ease;
+    }
+
+    .card-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,.12);
+      background: #e7f1ff;
+    }
+    .banner {
+      background: url('https://cdn-icons-png.flaticon.com/512/3135/3135715.png') no-repeat center center;
+      background-size: contain;
+      height: 180px;
+      margin-bottom: 30px;
+    }
+    .card-btn i {
+      font-size: 30px;
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+
+    .logout-btn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #b02a37;
+    }
+  </style>
+</head>
+<body>
+
+   <div class="banner"></div>
+
+  <!-- ✅ User Icon Above Welcome -->
+  <div class="user-icon">
+    <i class="fas fa-user-circle"></i>
+  </div>
+        
+  <h2>Welcome, {{ username }}</h2>
+
+  <div class="dashboard-grid">
+
+    <a href="{{ url_for('sales') }}" class="card-btn">
+      <i class="fas fa-shopping-cart"></i>
+      Sales Form
+    </a>
+
+    <a href="{{ url_for('refill') }}" class="card-btn">
+      <i class="fas fa-gas-pump"></i>
+      Refill Gas
+    </a>
+
+    <a href="{{ url_for('gas_form') }}" class="card-btn">
+      <i class="fas fa-box-open"></i>
+      Add/View Gas
+    </a>
+
+    <a href="{{ url_for('stock_out') }}" class="card-btn">
+      <i class="fas fa-truck-moving"></i>
+      Stock Out
+    </a>
+
+    <a href="{{ url_for('add_stock_in') }}" class="card-btn">
+      <i class="fas fa-sign-in-alt"></i>
+      Stock In
+    </a>
+
+    <a href="{{ url_for('prepaid_list') }}" class="card-btn">
+      <i class="fas fa-money-check-alt"></i>
+      Prepay Records
+    </a>
+
+    <a href="{{ url_for('gas_summary') }}" class="card-btn">
+      <i class="fas fa-chart-pie"></i>
+      Gas Summary
+    </a>
+
+    <a href="{{ url_for('view_logs') }}" class="card-btn">
+      <i class="fas fa-history"></i>
+      Stock Logs
+    </a>
+
+    <a href="{{ url_for('empty_cylinders_page') }}" class="card-btn">
+      <i class="fas fa-recycle"></i>
+      Empty Cylinders
+    </a>
+
+    <a href="{{ url_for('my_account') }}" class="card-btn">
+      <i class="fas fa-user-cog"></i>
+      My Account
+    </a>
+
+    {% if role == 'admin' %}
+    <a href="{{ url_for('manage_users') }}" class="card-btn">
+      <i class="fas fa-users-cog"></i>
+      Manage Users
+    </a>
+
+    <a href="{{ url_for('finance_page') }}" class="card-btn">
+      <i class="fas fa-coins"></i>
+      Manage Finance
+    </a>
+    {% endif %}
+
+  </div>
+
+  <form action="{{ url_for('logout') }}" method="post">
+    <button class="logout-btn">Logout</button>
+  </form>
+
+</body>
+</html>

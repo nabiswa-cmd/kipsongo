@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Gas Debts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #e6f7ff;
+        }
+
+        .no-results {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Search Gas Debts</h1>
+    <a href="{{ url_for('dashboard') }}" class="back-link">Back to Dashboard</a>
+
+    <form method="get" action="/gas-debt">
+        <input type="text" name="search" placeholder="Search by customer or gas name" value="{{ search_term }}">
+        <button type="submit">Search</button>
+    </form>
+
+    {% if debt_list %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Gas</th>
+                    <th>Customer</th>
+                    <th>Paid</th>
+                    <th>To Pay</th>
+                    <th>Balance</th>
+                    <th>Due Date</th>
+                    <th>Authorized By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for debt in debt_list %}
+                <tr>
+                    <td>{{ debt.gas_name }}</td>
+                    <td>{{ debt.customer_name }}</td>
+                    <td>{{ debt.amount_paid }}</td>
+                    <td>{{ debt.amount_to_be_paid }}</td>
+                    <td>{{ (debt.amount_to_be_paid|float - debt.amount_paid|float) | round(2) }}</td>
+                    <td>{{ debt.date_to_be_paid }}</td>
+                    <td>{{ debt.authorized_by }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-results">No matching debts found.</p>
+    {% endif %}
+
+</body>
+</html>

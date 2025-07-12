@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stock‑IN</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{font-family:Arial;padding:20px;background:#f9f9f9}
+    form{max-width:480px;margin:auto;background:#fff;padding:20px;border-radius:8px;
+         box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    label,select,input{display:block;width:100%;margin-top:10px;padding:8px;
+         border:1px solid #ccc;border-radius:5px;box-sizing:border-box}
+    button{margin-top:15px;width:100%;padding:10px;background:#28a745;color:#fff;
+           border:none;border-radius:5px;font-weight:bold}
+    button:disabled{background:#aaa}
+    table{width:100%;border-collapse:collapse;margin-top:30px;background:#fff;
+          box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    th,td{padding:8px;border:1px solid #ddd;text-align:center}
+    th{background:#444;color:#fff}
+    tr:nth-child(even){background:#fafafa}
+    .msg{text-align:center}
+    .ok  {color:green}
+    .bad {color:red}
+  </style>
+</head>
+<body>
+
+<h2 style="text-align:center">Record Stock IN</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat,msg in messages %}
+     <p class="msg {{'bad' if cat=='error' else 'ok'}}">{{ msg }}</p>
+  {% endfor %}
+{% endwith %}
+
+<!-- ░░░  ADD  ░░░ -->
+<form action="{{ url_for('add_stock_in') }}" method="post">
+    <label>Gas Brand:</label>
+    <select name="gas_id" required>
+        <option value="">-- choose brand --</option>
+        {% for g in gases %}
+          <option value="{{ g[0] }}">{{ g[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Cylinder State:</label>
+    <select name="cylinder_state" required>
+        <option value="filled">Filled cylinder</option>
+        <option value="empty">Empty cylinder</option>
+    </select>
+
+    <label>gas cylinder from:</label>
+    <select name="source_type" required>
+        <option value="supplier">Supplier</option>
+        <option value="internal">Work station</option>
+        <option value="customer">Customer</option>
+    </select>
+
+    <label>name of the above:</label>
+    <input name="source_value" required>
+
+    <button type="submit">Save Stock‑IN</button>
+    
+<a href="{{ url_for('dashboard') }}" style="display:block;text-align:center;margin-top:25px;">
+  ← Back to dashboard
+</a>
+</form>
+
+
+<!-- ░░░  GROUPED CURRENT STOCK‑IN  ░░░ -->
+<h3 style="text-align:center;margin-top:40px">Current cylinders in store</h3>
+<table>
+  <tr>
+    <th>Gas</th><th>State‑IN</th><th>Origin</th><th>Qty</th>
+    <th>Return Qty</th><th>Returned State</th><th>Action</th>
+  </tr>
+
+  {% for gid,gname,state,src_t,src_v,qty in grouped %}
+    <tr>
+      <td>{{ gname }}</td>
+      <td>{{ state }}</td>
+      <td>{{ src_t }} : {{ src_v }}</td>
+      <td>{{ qty }}</td>
+
+      <td><input  type="number" min="1" max="{{ qty }}" value="1"
+                style="width:70px"
+                oninput="checkQty(this,{{ qty }})">
+      </td>
+        
+
+      <td>
+        <select>
+          <option value="filled">filled</option>
+          <option value="empty">empty</option>
+        </select>
+      </td>
+
+      <td>
+        <form action="{{ url_for('return_stock_in') }}" method="post"
+              onsubmit="return setHidden(this);">
+          <input type="hidden" name="gas_id"          value="{{ gid }}">
+          <input type="hidden" name="cylinder_state"  value="{{ state }}">
+          <input type="hidden" name="source_type"     value="{{ src_t }}">
+          <input type="hidden" name="source_value"    value="{{ src_v }}">
+          <input type="hidden" name="return_qty">
+          <input type="hidden" name="returned_state">
+          <button type="submit">Return</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7">No cylinders in store.</td></tr>
+  {% endfor %}
+</table>
+
+
+<script>
+function checkQty(inp,max){
+    const n = Number(inp.value);
+    const btn = inp.parentElement.parentElement.querySelector("button");
+    if(n > max || n <= 0){
+        inp.style.borderColor = "red";
+        btn.disabled = true;
+    }else{
+        inp.style.borderColor = "";
+        btn.disabled = false;
+    }
+}
+function setHidden(form){
+    const row = form.parentElement.parentElement;
+    form.return_qty.value     = row.querySelector('input[type=number]').value;
+    form.returned_state.value = row.querySelector('select').value;
+    return true;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Add New Gas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* ——— same CSS you already have ——— */
+        body{font-family:Arial,sans-serif;margin:15px auto;max-width:600px;background:#f9f9f9;color:#333}
+        h2{text-align:center;font-weight:600;margin-bottom:20px}
+        form{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);margin-bottom:30px}
+        label,input{display:block;width:100%;font-size:16px;margin-bottom:15px}
+        input[type=text],input[type=number]{padding:10px;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
+        button{background:#4285f4;color:#fff;font-weight:600;border:none;border-radius:6px;padding:14px;width:100%;cursor:pointer;font-size:16px}
+        button:hover{background:#3367d6}
+        table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+        th,td{padding:12px 15px;border-bottom:1px solid #ddd;text-align:center}
+        th{background:#444;color:#fff}
+        tr:last-child td{border-bottom:none}
+        a.back-link{display:block;text-align:center;margin-top:25px;color:#4285f4;font-weight:600;text-decoration:none}
+        a.back-link:hover{text-decoration:underline}
+        .inline-input{width:70px;padding:4px;font-size:14px}
+        .small-btn{padding:6px 10px;font-size:14px;margin-top:0}
+    </style>
+</head>
+<body>
+
+<h2>Add New Gas</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat,msg in messages %}
+    <p style="text-align:center;color:{{ 'red' if cat=='error' else 'green' }}">{{ msg }}</p>
+  {% endfor %}
+{% endwith %}
+
+<form action="{{ url_for('add_gas') }}" method="POST">
+    <label>Gas Name:</label>
+    <input name="gas_name" required>
+
+    <label>Empty Cylinders:</label>
+    <input type="number" name="empty_cylinders" min="0" required>
+
+    <label>Filled Cylinders:</label>
+    <input type="number" name="filled_cylinders" min="0" required>
+
+    <button type="submit">Add Gas</button>
+    <a class="back-link" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+</form>
+
+
+<h2>Gas List</h2>
+<table>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Empty</th><th>Filled</th><th>Total</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+    {% for g in gases %}
+      <tr>
+        <form action="{{ url_for('update_gas', gid=g[0]) }}" method="post">
+          <td>{{ g[0] }}</td>
+          <td><input class="inline-input" name="gas_name" value="{{ g[1] }}"></td>
+          <td><input class="inline-input" type="number" min="0" name="empty_cylinders" value="{{ g[2] }}"></td>
+          <td><input class="inline-input" type="number" min="0" name="filled_cylinders" value="{{ g[3] }}"></td>
+          <td>{{ g[4] }}</td>
+          <td>
+              <button class="small-btn" type="submit">Save</button>
+        </form>
+              <form action="{{ url_for('delete_gas', gid=g[0]) }}" method="post" style="display:inline;"
+                    onsubmit="return confirm('Delete {{ g[1] }} ?');">
+                  <button class="small-btn" type="submit" style="background:#dc3545">🗑</button>
+              </form>
+          </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No gas data available.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

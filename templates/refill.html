@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gas Refill</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+      body{font-family:Arial;padding:20px;background:#f9f9f9;}
+      form{max-width:430px;margin:auto;background:#fff;padding:20px;
+           border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+      label{display:block;margin-top:10px;}
+      select,input{width:100%;padding:8px;margin-top:5px;
+                   border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
+      button{margin-top:15px;width:100%;padding:10px;background:#28a745;color:#fff;
+             border:none;border-radius:5px;font-weight:bold;}
+      button:hover{background:#218838;}
+      table{width:100%;border-collapse:collapse;margin-top:20px;}
+      th,td{padding:8px;border:1px solid #ddd;text-align:left;}
+      th{background:#eee;}
+      tr:nth-child(even){background:#fafafa;}
+      .date-head{margin-top:25px;font-weight:bold;font-size:18px;}
+      .company-head{font-weight:bold;background:#f0f0f0;}
+      a{display:block;text-align:center;margin-top:25px;}
+  </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Record Gas Refill</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat,msg in messages %}
+    <p style="text-align:center;color:{% if cat=='error' %}red{% else %}green{% endif %};">{{ msg }}</p>
+  {% endfor %}
+{% endwith %}
+<a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+<form method="POST" action="{{ url_for('add_refill') }}">
+  <label>Supplier / Station:</label>
+  <select name="company_id" id="company_select" required>
+      <option value="">-- select supplier --</option>
+      {% for c in companies %}
+         <option value="{{ c.company_id }}">{{ c.company_name }}</option>
+      {% endfor %}
+  </select>
+<select name="gas_id" required>
+  <option value="">-- select brand --</option>
+  {% for g in gases %}
+     <option value="{{ g.gas_id }}">
+        {{ g.gas_name }}  (Empty:{{ g.empty }}, Filled:{{ g.filled }})
+     </option>
+  {% endfor %}
+</select>
+
+
+  <label>Quantity Refilled:</label>
+  <input type="number" name="refill_qty" min="1" required>
+
+  
+
+  <button type="submit">Save Refill</button>
+</form>
+
+<hr>
+
+<h3 style="text-align:center;">Refill History</h3>
+{% for day in history %}
+  <div class="date-head">{{ day.date.strftime('%A, %d %B %Y') }}</div>
+  {% for comp in day.companies %}
+    <table>
+      <tr class="company-head">
+        <td colspan="5">{{ comp.company }}</td>
+      </tr>
+      <tr>
+        <th>Gas</th><th>Qty</th><th>Unit Price</th><th>Total Cost</th><th>Time</th>
+      </tr>
+      {% for r in comp.records %}
+        <tr>
+          <td>{{ r.gas }}</td>
+          <td>{{ r.qty }}</td>
+          <td>{{ "%.2f"|format(r.price) }}</td>
+          <td>{{ "%.2f"|format(r.total) }}</td>
+          <td>{{ r.time.strftime('%H:%M') }}</td>
+        </tr>
+      {% endfor %}
+
+      <!-- ⬇️  Total row  -->
+      <tr style="font-weight:bold;background:#e8ffe0;">
+        <td>Total</td>
+        <td>{{ comp.total_qty }}</td>
+        <td></td>
+        <td>{{ "%.2f"|format(comp.total_cost) }}</td>
+        <td></td>
+      </tr>
+    </table>
+  {% endfor %}
+{% endfor %}
+
+
+
+<script>
+// auto‑fill price from matrix (optional)
+function fetchPrice(){
+    const cid = document.getElementById('company_select').value;
+    const gid = document.getElementById('gas_select').value;
+    if(!cid || !gid){
+        document.getElementById('unit_price').value = "";
+        return;
+    }
+    fetch(`/get-price?company_id=${cid}&gas_id=${gid}`)
+      .then(r => r.json())
+      .then(js => {
+          const ip = document.getElementById('unit_price');
+          ip.value = js.price || "";
+          ip.style.color = js.price ? "#000" : "#f00";   // red if not set
+      });
+}
+document.getElementById('company_select').addEventListener('change', fetchPrice);
+document.getElementById('gas_select').addEventListener('change', fetchPrice);
+
+</script>
+
+</body>
+</html>

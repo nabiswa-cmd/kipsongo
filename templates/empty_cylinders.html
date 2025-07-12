@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf‑8">
+  <title>Empty Cylinders in Store</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+      body{font-family:Arial;padding:20px;background:#f9f9f9}
+      table{width:100%;border-collapse:collapse;background:#fff;
+            box-shadow:0 2px 6px rgba(0,0,0,.08)}
+      th,td{padding:10px;border:1px solid #ddd;text-align:center}
+      th{background:#343a40;color:#fff}
+      tr:nth-child(even){background:#fafafa}
+      h2{text-align:center;margin-bottom:25px}
+      .totals{margin-top:25px;font-weight:bold;text-align:center}
+      a{display:block;text-align:center;margin-top:25px}
+  </style>
+</head>
+<body>
+
+<h2>EMPTY cylinders now in Ukweli store</h2>
+
+<table>
+   <tr><th>Gas brand</th><th>Empty&nbsp;qty</th></tr>
+   {% for gid, gname, empty in brands %}
+       <tr>
+         <td>{{ gname }}</td>
+         <td>{{ empty }}</td>
+       </tr>
+   {% else %}
+       <tr><td colspan="2">No empty cylinders recorded.</td></tr>
+   {% endfor %}
+</table>
+
+<div class="totals">
+    Total 6kg empties&nbsp;: {{ total_other }}<br>
+    Total 13 kg empties&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ total_13 }}<br>
+    <hr style="width:160px;border:none;border-top:1px solid #ccc">
+    GRAND TOTAL&nbsp;: {{ grand_total }}
+</div>
+
+<a href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+</body>
+</html>

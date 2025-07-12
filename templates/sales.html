@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gas Sale Entry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .debt-row { background-color: #e71515 !important; }
+.mama-pam-row { background-color: #ffe0e0 !important; }
+.external-row { background-color: #047685 !important; }
+.kipsongo-row { background-color: #06fa1b !important; }
+.normal-sale-row {
+    background-color: rgb(255, 255, 255); /* Pure white for normal */
+}
+.debt-color { background-color: #e71515; }
+        .mama-pam-color { background-color: #ffe0e0; }
+        .external-color { background-color: #047685 ; }
+        .kipsongo-color { background-color: #06fa1b; }
+
+
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 15px;
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+
+        h2 {
+            color: #d41818;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        fieldset legend {
+            font-weight: bold;
+        }
+
+        button, .button {
+            background-color: hsl(187, 80%, 46%);
+            color: white;
+            padding: 10px;
+            margin-top: 15px;
+            width: 50%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #a81212;
+        }
+
+        .table-container {
+            background-color: hsl(64, 91%, 78%);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .date-heading {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+            background-color: #eee;
+            padding: 8px;
+            border-left: 4px solid #d41818;
+        }
+
+        .button {
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #d41818;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #07f01a;
+        }
+
+        .dashboard-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            background-color: #019c37;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .dashboard-link:hover {
+            background-color: #05fb32;
+        }
+
+        .legend-box {
+            margin: 10px 0;
+        }
+
+        .legend-box div {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 10px;
+            border-radius: 4px;
+            color: #000;
+            font-size: 13px;
+        }
+
+        
+        @media(min-width: 768px) {
+            .container {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: space-between;
+            }
+
+            form, .table-container {
+                width: 48%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h2>Gas Sale Entry</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div>
+  {% for category, message in messages %}
+    <div style="padding: 10px; margin-bottom: 10px; border-radius: 5px;
+                {% if category == 'success' %}
+                  background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+                {% elif category == 'error' %}
+                  background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+                {% else %}
+                  background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
+                {% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="container">
+    <form method="POST" action="/submit-sale">
+        <label for="gas_id">Gas Name:</label>
+        <select name="gas_id" id="gas_id_select" required>
+            {% for gas in gases %}
+            <option value="{{ gas[0] }}">
+                {{ gas[1] }} (Empty:{{ gas[2] }}, Filled:{{ gas[3] }})
+            </option>
+            {% endfor %}
+        </select>
+
+        <div style="margin-top: 10px;">
+            <a id="debt_link" href="{{ url_for('add_gas_debt', gas_id=gases[0][0]) }}" style="color: red; text-decoration: underline;">click here for Debt/pay later s(POST PAY)</a>
+        </div>
+
+        <label for="amount_paid_cash">Amount Paid (Cash):</label>
+        <input type="number" name="amount_paid_cash" step="0.01" required>
+
+        <label for="amount_paid_till">Amount Paid (Till):</label>
+        <input type="number" name="amount_paid_till" step="0.01" required>
+<button type="button" onclick="submitPrepay()">Pre-Pay:Gas Collect Later</button>
+
+      
+
+<script>
+function handlePrepayLinkClick() {
+    const gasId = document.getElementById("gas_id_select").value;
+    window.location.href = `/record-sale-and-open-prepay?gas_id=${gasId}`;
+}
+</script>
+
+<!-- … Empty received from ; … -->
+<fieldset>
+    <legend>Empty received from ;</legend>
+
+    <label><input type="radio" name="source" value="kipsongo_pioneer"
+                  onchange="toggleExternal()"> Ukweli_Lukhuna</label><br>
+
+    <label><input type="radio" name="source" value="mama_pam"
+                  onchange="toggleExternal()"> Mama Pam</label><br>
+
+    <label><input type="radio" name="source" value="external"
+                  onchange="toggleExternal()"> External</label><br>
+
+    <label><input type="radio" name="source" value="customer"
+                  onchange="toggleExternal()" checked> Customer</label><br>
+
+    <!-- ⬇︎ Hidden text box that appears only for ‘external’ -->
+    <div id="external_box" style="display:none; margin-top:8px;">
+        <label>External details (supplier, workstation …):</label>
+        <input type="text" name="external_details"
+               placeholder="e.g.Kafush">
+    </div>
+
+    <button type="submit">Submit Sale</button>
+</fieldset>
+
+<script>
+function toggleExternal(){
+    const val = document.querySelector('input[name="source"]:checked').value;
+    document.getElementById('external_box').style.display =
+        (val === 'external') ? 'block' : 'none';
+}
+</script>
+
+
+          <!-- SPECIAL section -->
+    <fieldset>
+    <legend>Special event during sale:</legend>
+
+    <!-- radios -->
+    <label>
+        <input type="radio" name="sale_type" value="complete_sale"
+               onclick="toggleSpecialBoxes()"> Complete Sale
+    </label><br>
+
+    <label>
+        <input type="radio" name="sale_type" value="empty_not_given"
+               onclick="toggleSpecialBoxes()"> Empty Not Given
+    </label><!-- empty‑not‑given customer box -->
+    <div id="empty-box" style="display:none; margin-top:8px;">
+        <label>Names of customer who didnt return an empty(no empty returned):</label>
+        <input type="text" name="empty_customer" placeholder="e.g. Nabiswa James">
+    </div><br>
+
+
+    <label>
+        <input type="radio" name="sale_type" value="exchange_cylinder"
+               onclick="toggleSpecialBoxes()"> Exchange Cylinder
+    </label><br>
+    <!-- exchange cylinder mini‑form -->
+    <div id="exchange-box"
+         style="display:none; margin-top:8px; padding:8px; border:1px solid #ccc;">
+        <strong>Exchange Details</strong><br>
+
+        <label>Customer Name:</label>
+        <input type="text" name="exchange_customer" placeholder="e.g. Teddy Onyango"><br>
+        <label>Empty cylinder received from customer:</label>
+        <select name="gas_id_received">
+            {% for g in gases %}
+                <option value="{{ g[0] }}">{{ g[1] }}</option>
+            {% endfor %}
+        </select><br>
+
+    </div>
+     <!-- SUBMIT buttons -->
+    
+    <button type="submit" name="action" value="special" class="button">Special Submit Sale</button>
+
+</fieldset>
+
+<!-- small helper script -->
+<script>
+function toggleSpecialBoxes() {
+    const val = document.querySelector('input[name="sale_type"]:checked')?.value;
+    document.getElementById('empty-box').style.display    = (val === 'empty_not_given')   ? 'block' : 'none';
+    document.getElementById('exchange-box').style.display = (val === 'exchange_cylinder') ? 'block' : 'none';
+}
+</script>
+
+   
+        <a class="dashboard-link" href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </form>
+
+    <div class="table-container">
+        <h2>Recent Sales</h2>
+
+        <div class="legend-box">
+            <div class="debt-color">Debt</div>
+            <div class="mama-pam-color">Mama Pam</div>
+            <div class="external-color">External</div>
+            <div class="kipsongo-color">Kipsongo Pioneer</div>
+        </div>
+
+        {% for group in grouped_sales %}
+            <div class="date-heading">{{ group.date_str }}</div>
+            <table>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Gas</th>
+                    <th>Cash</th>
+                    <th>Till</th>
+                    <th>Total</th>
+                    <th>Time Sold</th>
+                    <th>Action</th>
+                </tr>
+                {% for sale in group.sales %}
+                <tr class="
+    {% if sale.from_debt %}
+        debt-row
+    {% elif sale.source_mama_pam %}
+        mama-pam-row
+    {% elif sale.source_external %}
+        external-row
+    {% elif sale.source_kipsongo_pioneer %}
+        kipsongo-row
+    {% else %}normal-sale-row
+    {% endif %}
+">
+
+                    <td>{{ sale.id }}</td>
+                    <td>{{ sale.gas }}</td>
+                    <td>KSH {{ "%.2f"|format(sale.cash) }}</td>
+                    <td>KSH {{ "%.2f"|format(sale.till) }}</td>
+                    <td>KSH {{ "%.2f"|format(sale.cash + sale.till) }}</td>
+                    <td>{{ sale.time }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_sale', sale_id=sale.id) }}" style="color: #d41818; text-decoration: underline;">Edit</a>
+                        <a href="{{ url_for('delete_sale', sale_id=sale.id) }}" style="color: red;" onclick="return confirm('Are you sure you want to delete this sale?');">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td colspan="6">Total Gas Sold: {{ group.total_gas }}</td>
+                </tr>
+            </table>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    const gasSelect = document.getElementById('gas_id_select');
+    const debtLink = document.getElementById('debt_link');
+
+    gasSelect.addEventListener('change', function () {
+        const selectedGasId = this.value;
+        debtLink.href = "{{ url_for('add_gas_debt') }}" + "?gas_id=" + selectedGasId;
+    });
+</script>
+<script>
+    function handlePrepayLinkClick() {
+        const gasId = document.getElementById("gas_id_select").value;
+        if (!gasId) {
+            alert("Please select a gas first.");
+            return;
+        }
+
+        // Redirect to your Flask route
+        window.location.href = `/record-sale-and-open-prepay?gas_id=${gasId}`;
+    }
+</script>
+<script>
+function submitPrepay() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    const gasId = document.getElementById('gas_id_select').value;
+
+    fetch(`/record-sale-and-open-prepay?gas_id=${gasId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else if (!response.ok) {
+            alert("Fill the money paid by customer");
+        } else {
+            return response.text().then(text => alert(text));
+        }
+    })
+    .catch(error => alert("Error submitting prepay: " + error));
+}
+/* Show/hide Exchange box */
+function toggleExchangeBox(){
+    const radio = document.querySelector('input[name="sale_type"]:checked');
+    document.getElementById('exchange-box').style.display =
+        (radio && radio.value === 'exchange_cylinder') ? 'block' : 'none';
+}
+document.querySelectorAll('input[name="sale_type"]').forEach(r =>
+    r.addEventListener('change', toggleExchangeBox)
+);
+function toggleEmptyNotBox(show){
+    document.getElementById('empty-box').style.display = show ? 'block' : 'none';
+}
+document.querySelectorAll('input[name="sale_type"]').forEach(r =>
+    r.addEventListener('change', () =>
+        toggleEmptyNotBox(r.value === 'empty_not_given')
+    )
+);
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gas Debt Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        form, table { max-width: 800px; margin: auto; }
+        form { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        label { display: block; margin-top: 10px; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 40px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; }
+        .small-text { font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Add Gas Debt</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div>
+      {% for category, message in messages %}
+        <div style="padding: 10px; margin-bottom: 10px; border-radius: 5px;
+                    {% if category == 'success' %}
+                      background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+                    {% elif category == 'error' %}
+                      background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
+                    {% else %}
+                      background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;
+                    {% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form action="/add-gas-debt?gas_id={{ gas_id }}" method="post" enctype="multipart/form-data">
+        <label for="gas_name">Gas:</label>
+        <input type="text" id="gas_name" name="gas_name" value="{{ gas_name }}" readonly>
+        <input type="hidden" name="gas_id" value="{{ gas_id }}">
+
+        <label for="amount_to_be_paid">Amount To Be Paid:</label>
+        <input type="number" step="0.01" name="amount_to_be_paid" required>
+
+        <label for="date_to_be_paid">Date To Be Paid:</label>
+        <input type="date" name="date_to_be_paid" required>
+
+        <label for="authorized_by">Authorized By:</label>
+        <select name="authorized_by" required>
+            <option value="">-- Select --</option>
+            <option value="Mama Dan">Mama Dan (Angela)</option>
+            <option value="Baba Dan">Baba Dan (George)</option>
+        </select>
+
+    
+            <input type="checkbox" name="empty_cylinder_given" L> Empty Cylinder Given 
+        
+
+        <h3>Customer Details</h3>
+
+        <label for="customer_name">Name:</label> 
+        <input type="text" name="customer_name">
+
+        <label for="customer_phone">Phone:</label>
+        <input type="tel" name="customer_phone">
+
+        <label for="customer_address">Address:</label>
+        <textarea name="customer_address" rows="3"></textarea>
+
+        <label for="customer_picture">Take/Upload Picture:</label>
+        <input type="file" name="customer_picture" accept="image/*" capture="environment" onchange="previewImage(event)">
+        <img id="imagePreview" style="display:none; max-width:100%; border-radius:5px; border:1px solid #ccc; margin-top:10px;" alt="Preview">
+
+        <button type="submit">Submit Gas Debt</button>
+        <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+    </form>
+
+    <form method="get" action="/gas-debt" style="max-width: 800px; margin: auto; margin-top: 40px;">
+        <input type="text" value="{{ request.args.get('search', '') }}" name="search" placeholder="Search by customer or gas name" style="width: 70%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+        <button type="submit">Search</button>
+    </form>
+
+    {% if debt_list %}
+    <h2>Existing Gas Debts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Gas</th>
+                <th>Customer</th>
+                <th>Paid</th>
+                <th>To Pay</th>
+                <th>Balance</th>
+                <th>Due Date</th>
+                <th>Authorized By</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for debt in debt_list %}
+            {% set balance = debt['amount_to_be_paid'] | float - debt['amount_paid'] | float %}
+            <tr>
+                <td>{{ debt.gas_name }}</td>
+                <td>{{ debt.customer_name }}</td>
+                <td>{{ debt.amount_paid }}</td>
+                <td>{{ debt.amount_to_be_paid }}</td>
+                <td>{{ balance }}</td>
+                <td>{{ debt.date_to_be_paid }}</td>
+                <td>{{ debt.authorized_by }}</td>
+                <td>
+                    {% if balance <= 0 %}
+                    <form action="/delete-gas-debt/{{ debt.id }}" method="post" style="display:inline;">
+                        <button type="submit" onclick="return confirm('Are you sure to delete this debt?')">Delete</button>
+                    </form>
+                    {% else %}
+                    <span class="small-text">Cannot delete (Balance: {{ balance }})</span>
+                    {% endif %}
+                    <form action="/edit-gas-debt/{{ debt.id }}" method="get" style="display:inline;">
+                        <button type="submit">Edit</button>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8">
+                    <strong>Payments:</strong>
+                    {% if debt.payments %}
+                    <ul class="small-text">
+                        {% for payment in debt.payments %}
+                        <li>{{ payment.amount }} on {{ payment.payment_date.strftime('%Y-%m-%d') if payment.payment_date else '' }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <span class="small-text">No payments yet</span>
+                    {% endif %}
+
+                    <form action="/add-payment/{{ debt.id }}" method="post" style="margin-top:10px;">
+                        <input type="number" name="payment_amount" step="0.01" placeholder="Add Payment Amount" 
+                               {% if debt.balance == 0 %} disabled {% endif %} required>
+                        <button type="submit" {% if debt.balance == 0 %} disabled {% endif %}>Add Payment</button>
+                    </form>
+
+                    <form action="/undo-payment/{{ debt.id }}" method="post" style="display:inline;">
+                        <button type="submit" {% if debt.balance == 0 %} disabled {% endif %} onclick="return confirm('Undo last payment?')">Undo Last Payment</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function () {
+            const output = document.getElementById('imagePreview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+    </script>
+</body>
+</html>

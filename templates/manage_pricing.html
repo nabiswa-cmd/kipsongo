@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supplier & Pricing Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body{font-family:Arial;padding:20px;background:#f9f9f9;}
+        h2,h3{text-align:center;color:#d41818;}
+        form{max-width:420px;margin:20px auto;background:#fff;padding:18px;
+             border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+        label{display:block;margin-top:10px;}
+        input,select{width:100%;padding:8px;margin-top:5px;
+                     border:1px solid #ccc;border-radius:5px;box-sizing:border-box;}
+        button{width:100%;padding:10px;margin-top:15px;background:#28a745;
+               color:#fff;border:none;border-radius:5px;font-weight:bold;}
+        button:hover{background:#218838;}
+        table{width:100%;border-collapse:collapse;margin-top:30px;}
+        th,td{padding:8px;border:1px solid #ddd;text-align:left;}
+        th{background:#eee;}
+        tr:nth-child(even){background:#fafafa;}
+        .msg-success{color:green;text-align:center;}
+        .msg-error{color:red;text-align:center;}
+    </style>
+</head>
+<body>
+
+<h2>Supplier & Pricing Manager</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for cat,msg in messages %}
+    <p class="msg-{{ cat }}">{{ msg }}</p>
+  {% endfor %}
+{% endwith %}
+
+<a href="{{ url_for('finance_page')}}" style="display:block;text-align:center;margin-top:30px;">
+   ← Back 
+</a>
+<!-- ───────── 1.  Add new supplier ───────── -->
+<form method="POST" action="{{ url_for('add_supplier') }}">
+    <h3>Add New Supplier / Station</h3>
+    <label>Supplier Name:</label>
+    <input type="text" name="company_name" placeholder="e.g. ABC Gas Depot" required>
+    <button type="submit">Add Supplier</button>
+</form>
+
+<!-- ───────── 2.  Set or update price ───────── -->
+<form method="POST" action="{{ url_for('set_price') }}">
+    <h3>Add / Update Buying Price</h3>
+
+    <label>Supplier:</label>
+    <select name="company_id" required>
+        <option value="">-- select supplier --</option>
+        {% for c in companies %}
+           <option value="{{ c.company_id }}">{{ c.company_name }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Gas Brand:</label>
+<select name="gas_id" required>
+    <option value="all_below">All 6kg Brands</option>
+    <option value="all_above">All 13kg Brands</option>
+    {% for g in gases %}
+        <option value="{{ g.gas_id }}">{{ g.gas_name }}</option>
+    {% endfor %}
+</select>
+
+    <label>Refill Price (KSh):</label>
+    <input type="number" name="refill_price" step="0.01" min="0" >
+
+    <label>Full Price (KSh):</label>
+    <input type="number" name="full_price" step="0.01" min="0" >
+
+    <button type="submit">Save Price</button>
+</form>
+
+<!-- ───────── 3.  Optional: quick view of current prices ───────── -->
+{% if prices %}
+  <h3 style="margin-top:40px;">Current Price Matrix</h3>
+  <table>
+      <tr><th>Supplier</th><th>Gas</th><th>Refill Price</th><th>Full Price</th><th>Updated</th></tr>
+      {% for p in prices %}
+        <tr>
+           <td>{{ p.company_name }}</td>
+           <td>{{ p.gas_name }}</td>
+           <td>{{ "%.2f"|format(p.refill_price) }}</td>
+           <td>{{ "%.2f"|format(p.full_price) }}</td>
+           <td>{{ p.last_updated.strftime('%Y-%m-%d') }}</td>
+        </tr>
+      {% endfor %}
+  </table>
+{% endif %}
+
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Out Gas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        form { max-width: 500px; margin: auto; background: #f4f4f4; padding: 20px; border-radius: 8px; }
+        label { display: block; margin-top: 10px; }
+        select, input[type="text"], input[type="radio"] { width: 100%; padding: 8px; margin-top: 5px; }
+        .destination-box { display: none; margin-top: 10px; }
+        button { background: #007BFF; color: white; padding: 10px; border: none; border-radius: 5px; width: 100%; margin-top: 20px; cursor: pointer; }
+        table { border-collapse: collapse; width: 100%; margin-top: 40px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #007BFF; color: white; }
+        .return-form select { width: auto; display: inline-block; margin-right: 5px; }
+        .return-form button { width: auto; padding: 6px 12px; margin-top: 0; }
+        <style>
+  fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  input[type="radio"] {
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+  label {
+    vertical-align: middle;
+    cursor: pointer;
+  }
+</style>
+    </style>
+</head>
+<body>
+    {% if message %}
+    <p style="color: red;">{{ message }}</p>
+{% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div>
+      {% for category, message in messages %}
+        <p style="color: {% if category == 'error' %} red {% else %}green{% endif %};">
+          {{ message }}
+        </p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+
+<h2>Stock Out Gas</h2>
+
+<form method="POST" action="{{ url_for('add_stock_out') }}">
+    <label for="gas_id">Select Gas:</label>
+    <select name="gas_id" required>
+        {% for gas in gases %}
+            <option value="{{ gas[0] }}"> {{ gas[1] }} (Empty:{{ gas[2] }}, Filled:{{ gas[3] }})</option>
+        {% endfor %}
+    </select>
+<style>
+  fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  .radio-group {
+    display: flex;
+    gap: 20px; /* space between radio options */
+    align-items: center;
+  }
+  .radio-option {
+    display: flex;
+    align-items: center;
+  }
+  input[type="radio"] {
+    margin-right: 5px; /* space between button and label */
+  }
+</style>
+
+<fieldset>
+  <legend>Cylinder State:</legend>
+  <div class="radio-group">
+    <div class="radio-option">
+      <input type="radio" id="empty" name="cylinder_state" value="empty" required>
+      <label for="empty">Empty</label>
+    </div>
+    <div class="radio-option">
+      <input type="radio" id="filled" name="cylinder_state" value="filled" required>
+      <label for="filled">Filled</label>
+    </div>
+  </div>
+</fieldset>
+
+
+    <label>Goes To:</label>
+    <select name="destination_type" id="destination_type" required onchange="updateDestinationBox()">
+        <option value="">--Select--</option>
+        <option value="station">Different Station</option>
+        <option value="delivery">Delivery</option>
+        <option value="customer">Customer</option>
+    </select>
+
+    <div id="station_box" class="destination-box">
+        <label>Station:</label>
+        <select name="destination_value_station">
+            <option value="Mama Pam">Mama Pam</option>
+            <option value="Kipsongo Pioneer">Kipsongo Pioneer</option>
+            <option value="External (Car)">External (Car)</option>
+        </select>
+    </div>
+
+    <div id="delivery_box" class="destination-box">
+        <label>Delivery By:</label>
+        <select name="destination_value_delivery">
+            {% for user in users %}
+                <option value="{{ user[0] }}">{{ user[1] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div id="customer_box" class="destination-box">
+        <label>Customer Name:</label>
+        <input type="text" name="destination_value_customer">
+        <label>
+            <input type="checkbox" name="empty_not_given"> Empty Not Given
+        </label>
+    </div>
+
+    <button type="submit">Submit Stock Out</button>
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+</form>
+
+<!-- Stock Out Records Table -->
+<h2>Stock Out Records</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Gas Name</th>
+        <th>Cylinder State</th>
+        <th>Goes To</th>
+        <th>Customer Name</th>
+        <th>Delivery Person</th>
+        <th>Time</th>
+        <th>Return Cylinder State</th>
+        <th>Action</th>
+    </tr>
+    {% for record in stock_out_records %}
+    <tr>
+        <td>{{ record.id }}</td>
+        <td>{{ record.gas_name }}</td>
+        <td>{{ record.cylinder_state }}</td>
+        <td>{{ record.goes_to }}</td>
+        <td>{{ record.customer_name or "" }}</td>
+        <td>{{ record.delivery_username or "" }}</td>
+        <td>{{ record.time }}</td>
+        <td>
+            <form method="POST" action="{{ url_for('return_stock', stock_id=record.id) }}" class="return-form" onsubmit="return confirm('Confirm return?');">
+                <select name="returned_cylinder_state" required>
+                    <option value="empty">Empty</option>
+                    <option value="filled">Filled</option>
+                </select>
+        </td>
+        <td>
+                <button type="submit">Return</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+    function updateDestinationBox() {
+        const type = document.getElementById("destination_type").value;
+        document.getElementById("station_box").style.display = type === "station" ? "block" : "none";
+        document.getElementById("delivery_box").style.display = type === "delivery" ? "block" : "none";
+        document.getElementById("customer_box").style.display = type === "customer" ? "block" : "none";
+    }
+</script>
+
+</body>
+</html>

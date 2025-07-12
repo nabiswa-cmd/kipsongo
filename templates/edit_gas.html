@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Gas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+     body{font-family:Arial;padding:20px;background:#f9f9f9}
+     .card{max-width:400px;margin:auto;background:#fff;padding:20px;
+           border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+     label{display:block;margin-top:12px}
+     input{width:100%;padding:8px;margin-top:5px;
+           border:1px solid #ccc;border-radius:5px;box-sizing:border-box}
+     button{margin-top:18px;width:100%;padding:10px;background:#007bff;
+            color:#fff;border:none;border-radius:5px;font-weight:bold}
+     button:hover{background:#0062cc}
+     a{display:block;text-align:center;margin-top:18px}
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h3>Edit Gas – {{ gas[1] }}</h3>
+
+  <form action="{{ url_for('update_gas', gas_id=gas[0]) }}" method="post">
+      <label>Empty Cylinders:</label>
+      <input type="number" name="empty" min="0" value="{{ gas[2] }}" required>
+
+      <label>Filled Cylinders:</label>
+      <input type="number" name="filled" min="0" value="{{ gas[3] }}" required>
+
+      <button type="submit">Save Changes</button>
+  </form>
+  <a href="{{ url_for('gas_form') }}">← Back</a>
+</div>
+
+</body>
+</html>

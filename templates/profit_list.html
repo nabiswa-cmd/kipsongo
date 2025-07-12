@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Daily Profit List</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+ body{font-family:Arial,Helvetica,sans-serif;padding:20px;background:#f5f7fa}
+ h2{margin:10px 0 20px;text-align:center}
+ table{width:100%;border-collapse:collapse;margin-bottom:35px}
+ th,td{border:1px solid #ddd;padding:8px;font-size:14px;text-align:right}
+ th{background:#343a40;color:#fff}
+ td:first-child,th:first-child{text-align:left}
+ tr:nth-child(even){background:#fafafa}
+ .total-row{font-weight:bold;background:#e4ffe8}
+ .neg{color:#dc3545}
+ .pos{color:#198754}
+ .back{display:block;text-align:center;margin-top:20px}
+</style>
+</head>
+<body>
+
+<h2>Profit by Day</h2>
+
+{% for g in grouped %}
+  <h3>{{ g.day.strftime('%A, %d %B %Y') }}</h3>
+  <table>
+    <tr>
+      <th>ID</th><th>Gas</th><th>Qty</th>
+      <th>Revenue (KSh)</th><th>Cost (KSh)</th><th>Profit (KSh)</th><th>Time</th>
+    </tr>
+    {% for r in g.records %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td>{{ r.gas }}</td>
+        <td>{{ r.qty }}</td>
+        <td>{{ "%.2f"|format(r.rev) }}</td>
+        <td>{{ "%.2f"|format(r.cost) }}</td>
+        <td class="{{ 'neg' if r.prf<0 else 'pos' }}">
+            {{ "%.2f"|format(r.prf) }}
+        </td>
+        <td>{{ r.clock }}</td>
+      </tr>
+    {% endfor %}
+    <tr class="total-row">
+      <td colspan="2">Total</td>
+      <td>{{ g.tot_qty }}</td>
+      <td>{{ "%.2f"|format(g.tot_rev) }}</td>
+      <td>{{ "%.2f"|format(g.tot_cost) }}</td>
+      <td class="{{ 'neg' if g.tot_prf<0 else 'pos' }}">
+          {{ "%.2f"|format(g.tot_prf) }}
+      </td>
+      <td></td>
+    </tr>
+  </table>
+{% endfor %}
+
+<a href="{{ url_for('finance_page') }}" class="back">← Back</a>
+
+</body>
+</html> 
