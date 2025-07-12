@@ -8,13 +8,13 @@ try:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cur = conn.cursor()
 
-    # 🔧 gas_table
+    # 🔧 gas_table with CHECK constraints for non-negative values
     cur.execute("""
         CREATE TABLE IF NOT EXISTS gas_table (
             gas_id SERIAL PRIMARY KEY,
             gas_name TEXT NOT NULL,
-            empty_cylinders INTEGER DEFAULT 0,
-            filled_cylinders INTEGER DEFAULT 0,
+            empty_cylinders INTEGER DEFAULT 0 CHECK (empty_cylinders >= 0),
+            filled_cylinders INTEGER DEFAULT 0 CHECK (filled_cylinders >= 0),
             total_cylinders NUMERIC(10,2) GENERATED ALWAYS AS (empty_cylinders + filled_cylinders) STORED
         );
     """)
@@ -120,8 +120,6 @@ try:
         ON CONFLICT (username) DO NOTHING;
     """, ('admin', 'admin123'))
 
-   
-
     # 🔧 buying_company
     cur.execute("""
         CREATE TABLE IF NOT EXISTS buying_company (
@@ -185,7 +183,7 @@ try:
         );
     """)
 
-    # 🔧 profit_table (with created_at)
+    # 🔧 profit_table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS profit_table (
             profit_id SERIAL PRIMARY KEY,
@@ -196,7 +194,7 @@ try:
             revenue NUMERIC(10,2) NOT NULL,
             cost NUMERIC(10,2) NOT NULL,
             time_recorded TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP  -- For reporting by day
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         );
     """)
 
